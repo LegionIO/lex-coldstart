@@ -40,12 +40,12 @@ module Legion
 
           def progress
             {
-              firmware_loaded:    @firmware_loaded,
-              imprint_active:     imprint_active?,
-              imprint_progress:   Imprint.imprint_progress(@started_at),
-              observation_count:  @observation_count,
-              calibration_state:  @calibration_state,
-              current_layer:      current_layer
+              firmware_loaded:   @firmware_loaded,
+              imprint_active:    imprint_active?,
+              imprint_progress:  Imprint.imprint_progress(@started_at),
+              observation_count: @observation_count,
+              calibration_state: @calibration_state,
+              current_layer:     current_layer
             }
           end
 

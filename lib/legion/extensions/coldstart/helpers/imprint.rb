@@ -11,8 +11,8 @@ module Legion
           # Imprint window parameters
           IMPRINT_DURATION        = 7 * 86_400 # 7 days
           IMPRINT_MULTIPLIER      = 3.0        # consolidation rate multiplier during imprint
-          IMPRINT_CONSENT_TIER    = :consult    # conservative consent during imprint
-          IMPRINT_ENTROPY_BASELINE = 50        # minimum observations before entropy is meaningful
+          IMPRINT_CONSENT_TIER    = :consult # conservative consent during imprint
+          IMPRINT_ENTROPY_BASELINE = 50 # minimum observations before entropy is meaningful
 
           # Self-play bootstrap parameters
           SELF_PLAY_ITERATIONS    = 100

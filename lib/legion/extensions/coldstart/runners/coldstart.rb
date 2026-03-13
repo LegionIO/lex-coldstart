@@ -12,10 +12,10 @@ module Legion
             bootstrap.load_firmware
             bootstrap.begin_imprint
             {
-              started:         true,
+              started:          true,
               imprint_duration: Helpers::Imprint::IMPRINT_DURATION,
-              multiplier:      Helpers::Imprint::IMPRINT_MULTIPLIER,
-              consent_tier:    Helpers::Imprint::IMPRINT_CONSENT_TIER
+              multiplier:       Helpers::Imprint::IMPRINT_MULTIPLIER,
+              consent_tier:     Helpers::Imprint::IMPRINT_CONSENT_TIER
             }
           end
 
