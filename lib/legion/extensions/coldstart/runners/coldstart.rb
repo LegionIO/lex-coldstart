@@ -32,7 +32,7 @@ module Legion
             bootstrap.progress
           end
 
-          def imprint_active?(**)
+          def imprint_active?(**) # rubocop:disable Naming/PredicateMethod
             { active: bootstrap.imprint_active? }
           end
 

@@ -34,9 +34,8 @@ module Legion
           end
 
           def current_layer(started_at, observations:)
-            if observations < IMPRINT_ENTROPY_BASELINE && imprint_active?(started_at)
-              :imprint_window
-            elsif imprint_active?(started_at)
+            if (observations < IMPRINT_ENTROPY_BASELINE && imprint_active?(started_at)) ||
+               imprint_active?(started_at)
               :imprint_window
             else
               :continuous_learning
