@@ -8,29 +8,29 @@ module Legion
           module_function
 
           SECTION_TYPE_MAP = {
-            /\bhard rules\b/i                          => :firmware,
-            /\bidentity auth\b/i                       => :identity,
-            /\barchitecture\b/i                        => :semantic,
-            /\bkey concepts?\b|terminology/i           => :semantic,
-            /\bproject structure\b/i                   => :semantic,
-            /\bdigital worker\b/i                      => :semantic,
-            /\bgotcha|caveat|pitfall|known issue/i     => :procedural,
-            /\bcli\b|command|usage/i                   => :procedural,
-            /\bapi\b|routes?\b|endpoint/i              => :procedural,
-            /\bmcp\b/i                                 => :procedural,
-            /\bconfig|settings?\b|scaffold/i           => :procedural,
-            /\bskills?\b/i                             => :procedural,
-            /\bdevelopment|conventions?\b|workflow/i    => :procedural,
-            /\brubocop|lint/i                          => :procedural,
-            /\bdependenc/i                             => :semantic,
-            /\bfile (map|structure)\b/i                => :semantic,
-            /\bwhat is\b/i                             => :semantic,
-            /\bpurpose\b/i                             => :semantic,
-            /\bstatus|stub|todo\b/i                    => :semantic,
-            /\bagentic\b/i                             => :semantic,
-            /\bjwt\b|auth|crypt|secur/i                => :procedural,
-            /\bsinatra\b|rest\b/i                      => :procedural,
-            /\btransport|rabbitmq|amqp/i               => :semantic
+            /\bhard rules\b/i                        => :firmware,
+            /\bidentity auth\b/i                     => :identity,
+            /\barchitecture\b/i                      => :semantic,
+            /\bkey concepts?\b|terminology/i         => :semantic,
+            /\bproject structure\b/i                 => :semantic,
+            /\bdigital worker\b/i                    => :semantic,
+            /\bgotcha|caveat|pitfall|known issue/i   => :procedural,
+            /\bcli\b|command|usage/i                 => :procedural,
+            /\bapi\b|routes?\b|endpoint/i            => :procedural,
+            /\bmcp\b/i                               => :procedural,
+            /\bconfig|settings?\b|scaffold/i         => :procedural,
+            /\bskills?\b/i                           => :procedural,
+            /\bdevelopment|conventions?\b|workflow/i => :procedural,
+            /\brubocop|lint/i                        => :procedural,
+            /\bdependenc/i                           => :semantic,
+            /\bfile (map|structure)\b/i              => :semantic,
+            /\bwhat is\b/i                           => :semantic,
+            /\bpurpose\b/i                           => :semantic,
+            /\bstatus|stub|todo\b/i                  => :semantic,
+            /\bagentic\b/i                           => :semantic,
+            /\bjwt\b|auth|crypt|secur/i              => :procedural,
+            /\bsinatra\b|rest\b/i                    => :procedural,
+            /\btransport|rabbitmq|amqp/i             => :semantic
           }.freeze
 
           DEFAULT_TRACE_TYPE = :semantic
@@ -73,7 +73,7 @@ module Legion
           # Parse all matching markdown files under a directory.
           # Returns Array<Hash> of trace candidates.
           def parse_directory(dir_path, pattern: '**/{CLAUDE,MEMORY}.md')
-            Dir.glob(File.join(dir_path, pattern)).sort.flat_map do |path|
+            Dir.glob(File.join(dir_path, pattern)).flat_map do |path|
               next [] if skip_path?(path)
 
               parse_file(path)
@@ -118,7 +118,7 @@ module Legion
           # Extract individual items from a section body.
           # Bullets become individual items; paragraphs become single items;
           # code blocks are kept as single items.
-          def extract_items(body)
+          def extract_items(body) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
             items = []
             current_item = nil
             in_code_block = false
@@ -148,12 +148,12 @@ module Legion
                 current_item = line.sub(/\A\s*[-*]\s+/, '').strip
               elsif line.match?(/\A\s{2,}[-*]\s+/) || (current_item && line.match?(/\A\s{2,}\S/))
                 # Sub-bullet or continuation of current bullet
-                current_item = (current_item || '') + ' ' + line.strip
+                current_item = "#{current_item || ''} #{line.strip}"
               elsif line.strip.empty?
                 items << current_item if current_item && !current_item.strip.empty?
                 current_item = nil
               elsif current_item
-                current_item += ' ' + line.strip
+                current_item += " #{line.strip}"
               else
                 current_item = line.strip
               end

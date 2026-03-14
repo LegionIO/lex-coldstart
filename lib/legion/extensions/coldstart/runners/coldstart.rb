@@ -11,7 +11,10 @@ module Legion
           def begin_imprint(**)
             bootstrap.load_firmware
             bootstrap.begin_imprint
-            Legion::Logging.info "[coldstart] imprint begun: duration=#{Helpers::Imprint::IMPRINT_DURATION}s multiplier=#{Helpers::Imprint::IMPRINT_MULTIPLIER}x consent=#{Helpers::Imprint::IMPRINT_CONSENT_TIER}"
+            dur = Helpers::Imprint::IMPRINT_DURATION
+            mul = Helpers::Imprint::IMPRINT_MULTIPLIER
+            tier = Helpers::Imprint::IMPRINT_CONSENT_TIER
+            Legion::Logging.info "[coldstart] imprint begun: duration=#{dur}s multiplier=#{mul}x consent=#{tier}"
             {
               started:          true,
               imprint_duration: Helpers::Imprint::IMPRINT_DURATION,
@@ -22,7 +25,8 @@ module Legion
 
           def record_observation(**)
             bootstrap.record_observation
-            Legion::Logging.debug "[coldstart] observation: count=#{bootstrap.observation_count} calibration=#{bootstrap.calibration_state} layer=#{bootstrap.current_layer}"
+            Legion::Logging.debug "[coldstart] observation: count=#{bootstrap.observation_count} " \
+                                  "calibration=#{bootstrap.calibration_state} layer=#{bootstrap.current_layer}"
             {
               observation_count: bootstrap.observation_count,
               calibration_state: bootstrap.calibration_state,

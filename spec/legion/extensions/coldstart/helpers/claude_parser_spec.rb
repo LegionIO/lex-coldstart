@@ -113,7 +113,7 @@ RSpec.describe Legion::Extensions::Coldstart::Helpers::ClaudeParser do
     end
 
     it 'rejects very short or very long tags' do
-      tags = described_class.extract_inline_tags('`x` and `a_very_long_tag_' + 'x' * 60 + '`')
+      tags = described_class.extract_inline_tags("`x` and `a_very_long_tag_#{'x' * 60}`")
       expect(tags).to be_empty
     end
   end
@@ -159,7 +159,7 @@ RSpec.describe Legion::Extensions::Coldstart::Helpers::ClaudeParser do
     it 'sets confidence 1.0 for firmware traces' do
       traces = described_class.parse_file(memory_path)
       firmware = traces.select { |t| t[:trace_type] == :firmware }
-      expect(firmware.all? { |t| t[:confidence] == 1.0 }).to be true
+      expect(firmware.all? { |t| t[:confidence] == 1.0 }).to be true # rubocop:disable Lint/FloatComparison
     end
 
     it 'includes source_file in each trace' do

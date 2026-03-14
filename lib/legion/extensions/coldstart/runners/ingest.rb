@@ -67,9 +67,7 @@ module Legion
           # @param file_path [String] absolute path to the markdown file
           # @return [Hash] { file:, file_type:, traces: }
           def preview_ingest(file_path:, **)
-            unless File.exist?(file_path)
-              return { file: file_path, error: 'file not found' }
-            end
+            return { file: file_path, error: 'file not found' } unless File.exist?(file_path)
 
             candidates = Helpers::ClaudeParser.parse_file(file_path)
             file_type = Helpers::ClaudeParser.detect_file_type(file_path)
@@ -91,13 +89,13 @@ module Legion
 
             candidates.each do |candidate|
               result = memory_store_trace(
-                type:               candidate[:trace_type],
-                content_payload:    candidate[:content_payload],
-                domain_tags:        candidate[:domain_tags],
-                origin:             candidate[:origin],
-                confidence:         candidate[:confidence],
-                imprint_active:     imprint,
-                emotional_valence:  0.0,
+                type:                candidate[:trace_type],
+                content_payload:     candidate[:content_payload],
+                domain_tags:         candidate[:domain_tags],
+                origin:              candidate[:origin],
+                confidence:          candidate[:confidence],
+                imprint_active:      imprint,
+                emotional_valence:   0.0,
                 emotional_intensity: candidate[:trace_type] == :firmware ? 0.8 : 0.3
               )
               stored << result if result
@@ -113,9 +111,9 @@ module Legion
               Legion::Extensions::Memory::Runners.const_defined?(:Traces)
           end
 
-          def memory_store_trace(**kwargs)
+          def memory_store_trace(**)
             runner = Object.new.extend(Legion::Extensions::Memory::Runners::Traces)
-            runner.store_trace(**kwargs)
+            runner.store_trace(**)
           rescue StandardError => e
             Legion::Logging.warn "[coldstart:ingest] failed to store trace: #{e.message}"
             nil

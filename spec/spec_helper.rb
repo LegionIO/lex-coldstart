@@ -1,24 +1,17 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'legion/extensions/coldstart'
 
-# Stub Legion::Logging if not already defined (standalone test context)
-unless defined?(Legion::Logging)
-  module Legion
-    module Logging
-      module_function
-
-      def info(*); end
-
-      def debug(*); end
-
-      def warn(*); end
-
-      def error(*); end
-    end
+module Legion
+  module Logging
+    def self.debug(_msg); end
+    def self.info(_msg); end
+    def self.warn(_msg); end
+    def self.error(_msg); end
   end
 end
+
+require 'legion/extensions/coldstart'
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
