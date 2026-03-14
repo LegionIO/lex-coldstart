@@ -85,23 +85,34 @@ module Legion
             return [] unless memory_available?
 
             imprint = imprint_active_now?
-            stored = []
+            runner  = memory_runner
+            stored  = []
 
             candidates.each do |candidate|
-              result = memory_store_trace(
+              result = runner.store_trace(
                 type:                candidate[:trace_type],
                 content_payload:     candidate[:content_payload],
                 domain_tags:         candidate[:domain_tags],
                 origin:              candidate[:origin],
                 confidence:          candidate[:confidence],
                 imprint_active:      imprint,
-                emotional_valence:   0.0,
-                emotional_intensity: candidate[:trace_type] == :firmware ? 0.8 : 0.3
+                emotional_valence:   candidate[:emotional_valence] || 0.0,
+                emotional_intensity: candidate[:emotional_intensity] || (candidate[:trace_type] == :firmware ? 0.8 : 0.3)
               )
               stored << result if result
+            rescue StandardError => e
+              Legion::Logging.warn "[coldstart:ingest] failed to store trace: #{e.message}"
             end
 
+            # Flush the cache-backed store if it supports it
+            store = runner.send(:default_store)
+            store.flush if store.respond_to?(:flush)
+
             Legion::Logging.info "[coldstart:ingest] stored #{stored.size} traces (imprint_active=#{imprint})"
+
+            # Co-activate traces from the same section to form Hebbian links
+            coactivate_section_traces(stored, candidates, runner)
+
             stored
           end
 
@@ -111,12 +122,8 @@ module Legion
               Legion::Extensions::Memory::Runners.const_defined?(:Traces)
           end
 
-          def memory_store_trace(**)
-            runner = Object.new.extend(Legion::Extensions::Memory::Runners::Traces)
-            runner.store_trace(**)
-          rescue StandardError => e
-            Legion::Logging.warn "[coldstart:ingest] failed to store trace: #{e.message}"
-            nil
+          def memory_runner
+            @memory_runner ||= Object.new.extend(Legion::Extensions::Memory::Runners::Traces)
           end
 
           def imprint_active_now?
@@ -127,6 +134,38 @@ module Legion
 
           def bootstrap
             @bootstrap ||= Helpers::Bootstrap.new
+          end
+
+          def coactivate_section_traces(stored, candidates, runner)
+            return if stored.size < 2
+
+            store = runner.send(:default_store)
+
+            # Group stored trace IDs by their heading_slug domain tag
+            groups = {}
+            stored.each_with_index do |result, idx|
+              candidate = candidates[idx]
+              next unless candidate && result
+
+              slug = candidate[:domain_tags]&.find { |t| t.is_a?(String) && !%w[memory claude_md markdown].include?(t) && !t.include?('/') }
+              next unless slug
+
+              groups[slug] ||= []
+              groups[slug] << result[:trace_id]
+            end
+
+            coactivations = 0
+            groups.each_value do |trace_ids|
+              # Limit to first 10 traces per section to avoid O(n^2) explosion
+              trace_ids.first(10).combination(2).each do |id_a, id_b|
+                store.record_coactivation(id_a, id_b)
+                coactivations += 1
+              end
+            end
+
+            Legion::Logging.debug "[coldstart:ingest] co-activated #{coactivations} trace pairs across #{groups.size} sections"
+          rescue StandardError => e
+            Legion::Logging.warn "[coldstart:ingest] co-activation failed: #{e.message}"
           end
         end
       end

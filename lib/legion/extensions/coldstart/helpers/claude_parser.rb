@@ -35,6 +35,15 @@ module Legion
 
           DEFAULT_TRACE_TYPE = :semantic
 
+          SECTION_VALENCE_MAP = {
+            /\bgotcha|caveat|pitfall|known issue|error|stub|todo\b/i => { valence: -0.4, intensity: 0.5 },
+            /\bhard rules?\b/i                                       => { valence: 0.0,  intensity: 0.8 },
+            /\barchitecture\b|design|key concepts?\b/i               => { valence: 0.3,  intensity: 0.4 },
+            /\bdependenc|integration|requirements?\b/i                => { valence: 0.1,  intensity: 0.3 }
+          }.freeze
+
+          DEFAULT_VALENCE = { valence: 0.1, intensity: 0.3 }.freeze
+
           # Parse a markdown file into an array of trace candidates.
           # Each candidate is a Hash ready for lex-memory's store_trace.
           #
@@ -56,13 +65,16 @@ module Legion
               items = extract_items(section[:body])
               items.each do |item|
                 inline_tags = extract_inline_tags(item)
+                section_valence = classify_valence(section[:heading])
                 traces << {
-                  trace_type:      trace_type,
-                  content_payload: item.strip,
-                  domain_tags:     (base_tags + inline_tags).uniq,
-                  origin:          file_type == :memory ? :firmware : :direct_experience,
-                  confidence:      trace_type == :firmware ? 1.0 : 0.7,
-                  source_file:     file_path
+                  trace_type:          trace_type,
+                  content_payload:     item.strip,
+                  domain_tags:         (base_tags + inline_tags).uniq,
+                  origin:              file_type == :memory ? :firmware : :direct_experience,
+                  confidence:          trace_type == :firmware ? 1.0 : 0.7,
+                  emotional_valence:   trace_type == :firmware ? 0.0 : section_valence[:valence],
+                  emotional_intensity: section_valence[:intensity],
+                  source_file:         file_path
                 }
               end
             end
@@ -179,6 +191,14 @@ module Legion
               return type if heading.match?(pattern)
             end
             DEFAULT_TRACE_TYPE
+          end
+
+          # Classify a section heading into an emotional valence hash.
+          def classify_valence(heading)
+            SECTION_VALENCE_MAP.each do |pattern, vals|
+              return vals if heading.match?(pattern)
+            end
+            DEFAULT_VALENCE
           end
 
           # Extract directory context for domain tagging (e.g., "lex-coldstart", "LegionIO").
