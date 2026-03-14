@@ -39,7 +39,7 @@ module Legion
             /\bgotcha|caveat|pitfall|known issue|error|stub|todo\b/i => { valence: -0.4, intensity: 0.5 },
             /\bhard rules?\b/i                                       => { valence: 0.0,  intensity: 0.8 },
             /\barchitecture\b|design|key concepts?\b/i               => { valence: 0.3,  intensity: 0.4 },
-            /\bdependenc|integration|requirements?\b/i                => { valence: 0.1,  intensity: 0.3 }
+            /\bdependenc|integration|requirements?\b/i               => { valence: 0.1, intensity: 0.3 }
           }.freeze
 
           DEFAULT_VALENCE = { valence: 0.1, intensity: 0.3 }.freeze

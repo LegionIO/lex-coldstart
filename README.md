@@ -80,6 +80,28 @@ Legion::Extensions::Coldstart::Runners::Coldstart.coldstart_progress
 | `:baseline_established` | >= 50 observations, imprint still active |
 | `:calibrated` | >= 50 observations, imprint window expired |
 
+## Claude Context Ingestion
+
+`lex-coldstart` includes a parser and ingest runner for bridging Claude Code's auto-memory (MEMORY.md) and project CLAUDE.md files into the agent's lex-memory trace store. This is the primary bootstrap mechanism for seeding an agent's long-term memory from existing documentation.
+
+```ruby
+# Parse and ingest a MEMORY.md file into lex-memory traces
+Legion::Extensions::Coldstart::Runners::Ingest.ingest_claude_context(
+  path: '/Users/me/.claude/projects/myproject/MEMORY.md'
+)
+# => { ingested: 133, firmware: 41, semantic: 92, ... }
+
+# Parse a full CLAUDE.md directory tree (recursive)
+Legion::Extensions::Coldstart::Runners::Ingest.ingest_claude_context(
+  path: '/Users/me/rubymine/legion'
+)
+# => { ingested: 1546, files_parsed: 66, ... }
+```
+
+Trace types are assigned from section headings: "Hard Rules"/"firmware" sections become `:firmware` traces (never decay), gotcha sections become `:procedural`, architecture sections become `:semantic`.
+
+During the imprint window, ingested traces automatically receive the 3x reinforcement multiplier.
+
 ## Development
 
 ```bash
