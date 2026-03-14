@@ -85,22 +85,28 @@ Legion::Extensions::Coldstart::Runners::Coldstart.coldstart_progress
 `lex-coldstart` includes a parser and ingest runner for bridging Claude Code's auto-memory (MEMORY.md) and project CLAUDE.md files into the agent's lex-memory trace store. This is the primary bootstrap mechanism for seeding an agent's long-term memory from existing documentation.
 
 ```ruby
-# Parse and ingest a MEMORY.md file into lex-memory traces
-Legion::Extensions::Coldstart::Runners::Ingest.ingest_claude_context(
-  path: '/Users/me/.claude/projects/myproject/MEMORY.md'
+# Ingest a single file
+Legion::Extensions::Coldstart::Runners::Ingest.ingest_file(
+  file_path: '/Users/me/.claude/projects/myproject/MEMORY.md'
 )
-# => { ingested: 133, firmware: 41, semantic: 92, ... }
+# => { file: '...', file_type: :memory, traces_parsed: 133, traces_stored: 133, traces: [...] }
 
-# Parse a full CLAUDE.md directory tree (recursive)
-Legion::Extensions::Coldstart::Runners::Ingest.ingest_claude_context(
-  path: '/Users/me/rubymine/legion'
+# Ingest a full CLAUDE.md directory tree (recursive)
+Legion::Extensions::Coldstart::Runners::Ingest.ingest_directory(
+  dir_path: '/Users/me/rubymine/legion'
 )
-# => { ingested: 1546, files_parsed: 66, ... }
+# => { directory: '...', files_found: 66, total_parsed: 1546, total_stored: 1546, files: [...] }
+
+# Preview without storing
+Legion::Extensions::Coldstart::Runners::Ingest.preview_ingest(
+  file_path: '/Users/me/rubymine/legion/CLAUDE.md'
+)
+# => { file: '...', file_type: :claude_md, traces: [...] }
 ```
 
 Trace types are assigned from section headings: "Hard Rules"/"firmware" sections become `:firmware` traces (never decay), gotcha sections become `:procedural`, architecture sections become `:semantic`.
 
-During the imprint window, ingested traces automatically receive the 3x reinforcement multiplier.
+After ingestion, traces from the same markdown section are co-activated to seed Hebbian associative links. During the imprint window, ingested traces automatically receive the 3x reinforcement multiplier.
 
 ## Development
 

@@ -31,7 +31,8 @@ lib/legion/extensions/coldstart/
     imprint.rb       # Once actor - fires once at boot to start the imprint window
   runners/
     coldstart.rb     # begin_imprint, record_observation, coldstart_progress, imprint_active?, current_multiplier
-    ingest.rb        # ingest_claude_context - parses CLAUDE.md/MEMORY.md files into lex-memory traces
+    ingest.rb        # ingest_file, ingest_directory, preview_ingest - parses CLAUDE.md/MEMORY.md
+                     # files into lex-memory traces with Hebbian co-activation of same-section traces
 spec/
   legion/extensions/coldstart/
     runners/
@@ -83,7 +84,10 @@ BOOTSTRAP_TRACE_TYPES    = %i[identity semantic procedural]
 `Runners::Ingest` and `Helpers::ClaudeParser` bridge Claude Code's auto-memory (MEMORY.md) and project CLAUDE.md files into lex-memory traces.
 
 - `ClaudeParser` is a pure markdown parser with no lex-memory dependency — it splits files into sections and bullet points, one trace per bullet
-- `Ingest.ingest_claude_context(path:)` parses a file or directory tree and optionally stores results into lex-memory
+- `Ingest.ingest_file(file_path:, store_traces: true)` — parses a single CLAUDE.md or MEMORY.md file
+- `Ingest.ingest_directory(dir_path:, pattern: '**/{CLAUDE,MEMORY}.md', store_traces: true)` — recursively parses all matching files in a directory tree
+- `Ingest.preview_ingest(file_path:)` — parse without storing (dry-run)
+- After storing, traces within the same section are co-activated via `store.record_coactivation` to seed Hebbian links (up to 10 traces per section, first 45 pairs)
 - Trace type mapping: "Hard Rules" / "firmware" sections -> `:firmware`, "Gotchas" -> `:procedural`, "Architecture" -> `:semantic`, default -> `:semantic`
 - MEMORY.md traces get `origin: :firmware`; CLAUDE.md traces get `origin: :direct_experience`
 - Firmware traces: `confidence: 1.0`, `emotional_intensity: 0.8` (never decay)
@@ -92,6 +96,7 @@ BOOTSTRAP_TRACE_TYPES    = %i[identity semantic procedural]
 - `detect_file_type` matches filenames containing "memory" or "claude" (substring, not exact)
 - `spec_helper` stubs `Legion::Logging` when running standalone (no full framework)
 - Real MEMORY.md produces ~133 traces; full CLAUDE.md tree produces ~1,546 traces from 66 files
+- The store's `flush` method is called after storing all traces (only effective for `CacheStore`)
 
 ## Development Notes
 
