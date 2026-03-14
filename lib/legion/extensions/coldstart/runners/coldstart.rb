@@ -11,6 +11,7 @@ module Legion
           def begin_imprint(**)
             bootstrap.load_firmware
             bootstrap.begin_imprint
+            Legion::Logging.info "[coldstart] imprint begun: duration=#{Helpers::Imprint::IMPRINT_DURATION}s multiplier=#{Helpers::Imprint::IMPRINT_MULTIPLIER}x consent=#{Helpers::Imprint::IMPRINT_CONSENT_TIER}"
             {
               started:          true,
               imprint_duration: Helpers::Imprint::IMPRINT_DURATION,
@@ -21,6 +22,7 @@ module Legion
 
           def record_observation(**)
             bootstrap.record_observation
+            Legion::Logging.debug "[coldstart] observation: count=#{bootstrap.observation_count} calibration=#{bootstrap.calibration_state} layer=#{bootstrap.current_layer}"
             {
               observation_count: bootstrap.observation_count,
               calibration_state: bootstrap.calibration_state,
@@ -29,16 +31,22 @@ module Legion
           end
 
           def coldstart_progress(**)
-            bootstrap.progress
+            progress = bootstrap.progress
+            Legion::Logging.debug "[coldstart] progress: #{progress.inspect}"
+            progress
           end
 
           def imprint_active?(**) # rubocop:disable Naming/PredicateMethod
-            { active: bootstrap.imprint_active? }
+            active = bootstrap.imprint_active?
+            Legion::Logging.debug "[coldstart] imprint_active?=#{active}"
+            { active: active }
           end
 
           def current_multiplier(**)
-            multiplier = bootstrap.imprint_active? ? Helpers::Imprint::IMPRINT_MULTIPLIER : 1.0
-            { multiplier: multiplier, imprint_active: bootstrap.imprint_active? }
+            active = bootstrap.imprint_active?
+            multiplier = active ? Helpers::Imprint::IMPRINT_MULTIPLIER : 1.0
+            Legion::Logging.debug "[coldstart] multiplier=#{multiplier} imprint_active=#{active}"
+            { multiplier: multiplier, imprint_active: active }
           end
 
           private
