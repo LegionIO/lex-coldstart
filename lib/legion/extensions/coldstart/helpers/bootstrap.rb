@@ -68,12 +68,12 @@ module Legion
 
             ds = Legion::Data::Local.connection[:bootstrap_state]
             row = {
-              started_at_i:      @started_at ? @started_at.to_i : nil,
+              started_at_i:      @started_at&.to_i,
               observation_count: @observation_count,
               firmware_loaded:   @firmware_loaded,
               calibration_state: @calibration_state.to_s
             }
-            if ds.where(id: 1).count.positive?
+            if ds.where(id: 1).any?
               ds.where(id: 1).update(row)
             else
               ds.insert(row.merge(id: 1))
@@ -90,7 +90,7 @@ module Legion
 
             @started_at        = row[:started_at_i] ? Time.at(row[:started_at_i]).utc : nil
             @observation_count = row[:observation_count].to_i
-            @firmware_loaded   = row[:firmware_loaded] == true || row[:firmware_loaded] == 1
+            @firmware_loaded   = [true, 1].include?(row[:firmware_loaded])
             @calibration_state = row[:calibration_state].to_sym
           rescue StandardError => e
             Legion::Logging.warn "lex-coldstart: load_from_local failed: #{e.message}"

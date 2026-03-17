@@ -5,13 +5,13 @@ require 'sequel'
 require 'sequel/extensions/migration'
 
 RSpec.describe 'lex-coldstart local persistence' do
-  let(:db) { ::Sequel.sqlite }
+  let(:db) { Sequel.sqlite }
   let(:migration_path) do
     File.join(__dir__, '..', 'lib', 'legion', 'extensions', 'coldstart', 'local_migrations')
   end
 
   before do
-    ::Sequel::TimestampMigrator.new(db, migration_path).run
+    Sequel::TimestampMigrator.new(db, migration_path).run
     stub_const('Legion::Data::Local', local_mod)
   end
 
@@ -80,14 +80,14 @@ RSpec.describe 'lex-coldstart local persistence' do
   describe 'calibration_state symbol round-trip' do
     %i[not_started imprinting baseline_established calibrated].each do |state|
       it "persists and restores :#{state}" do
-        b = fresh_bootstrap
+        fresh_bootstrap
         # Force the state directly through the DB to test all symbol variants
         db[:bootstrap_state].where(id: 1).delete
         db[:bootstrap_state].insert(
-          id: 1,
-          started_at_i: nil,
+          id:                1,
+          started_at_i:      nil,
           observation_count: 0,
-          firmware_loaded: false,
+          firmware_loaded:   false,
           calibration_state: state.to_s
         )
         b2 = fresh_bootstrap
