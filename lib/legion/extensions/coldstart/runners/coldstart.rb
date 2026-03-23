@@ -14,7 +14,7 @@ module Legion
             dur = Helpers::Imprint::IMPRINT_DURATION
             mul = Helpers::Imprint::IMPRINT_MULTIPLIER
             tier = Helpers::Imprint::IMPRINT_CONSENT_TIER
-            Legion::Logging.info "[coldstart] imprint begun: duration=#{dur}s multiplier=#{mul}x consent=#{tier}"
+            log.info "[coldstart] imprint begun: duration=#{dur}s multiplier=#{mul}x consent=#{tier}"
             {
               started:          true,
               imprint_duration: Helpers::Imprint::IMPRINT_DURATION,
@@ -25,8 +25,8 @@ module Legion
 
           def record_observation(**)
             bootstrap.record_observation
-            Legion::Logging.debug "[coldstart] observation: count=#{bootstrap.observation_count} " \
-                                  "calibration=#{bootstrap.calibration_state} layer=#{bootstrap.current_layer}"
+            log.debug "[coldstart] observation: count=#{bootstrap.observation_count} " \
+                      "calibration=#{bootstrap.calibration_state} layer=#{bootstrap.current_layer}"
             {
               observation_count: bootstrap.observation_count,
               calibration_state: bootstrap.calibration_state,
@@ -36,20 +36,20 @@ module Legion
 
           def coldstart_progress(**)
             progress = bootstrap.progress
-            Legion::Logging.debug "[coldstart] progress: #{progress.inspect}"
+            log.debug "[coldstart] progress: #{progress.inspect}"
             progress
           end
 
           def imprint_active?(**) # rubocop:disable Naming/PredicateMethod
             active = bootstrap.imprint_active?
-            Legion::Logging.debug "[coldstart] imprint_active?=#{active}"
+            log.debug "[coldstart] imprint_active?=#{active}"
             { active: active }
           end
 
           def current_multiplier(**)
             active = bootstrap.imprint_active?
             multiplier = active ? Helpers::Imprint::IMPRINT_MULTIPLIER : 1.0
-            Legion::Logging.debug "[coldstart] multiplier=#{multiplier} imprint_active=#{active}"
+            log.debug "[coldstart] multiplier=#{multiplier} imprint_active=#{active}"
             { multiplier: multiplier, imprint_active: active }
           end
 

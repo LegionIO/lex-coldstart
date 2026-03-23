@@ -16,13 +16,13 @@ module Legion
           # @return [Hash] { file:, file_type:, traces_parsed:, traces_stored:, traces: }
           def ingest_file(file_path:, store_traces: true, **)
             unless File.exist?(file_path)
-              Legion::Logging.warn "[coldstart:ingest] file not found: #{file_path}"
+              log.warn "[coldstart:ingest] file not found: #{file_path}"
               return { file: file_path, error: 'file not found' }
             end
 
             candidates = Helpers::ClaudeParser.parse_file(file_path)
             file_type = Helpers::ClaudeParser.detect_file_type(file_path)
-            Legion::Logging.info "[coldstart:ingest] parsed #{candidates.size} traces from #{file_path} (#{file_type})"
+            log.info "[coldstart:ingest] parsed #{candidates.size} traces from #{file_path} (#{file_type})"
 
             stored = store_traces ? store_candidates(candidates) : []
 
@@ -43,13 +43,13 @@ module Legion
           # @return [Hash] { directory:, files_found:, total_parsed:, total_stored:, files: }
           def ingest_directory(dir_path:, pattern: '**/{CLAUDE,MEMORY}.md', store_traces: true, **)
             unless Dir.exist?(dir_path)
-              Legion::Logging.warn "[coldstart:ingest] directory not found: #{dir_path}"
+              log.warn "[coldstart:ingest] directory not found: #{dir_path}"
               return { directory: dir_path, error: 'directory not found' }
             end
 
             candidates = Helpers::ClaudeParser.parse_directory(dir_path, pattern: pattern)
             files = candidates.map { |c| c[:source_file] }.uniq
-            Legion::Logging.info "[coldstart:ingest] parsed #{candidates.size} traces from #{files.size} files in #{dir_path}"
+            log.info "[coldstart:ingest] parsed #{candidates.size} traces from #{files.size} files in #{dir_path}"
 
             stored = store_traces ? store_candidates(candidates) : []
 
@@ -101,14 +101,14 @@ module Legion
               )
               stored << result if result
             rescue StandardError => e
-              Legion::Logging.warn "[coldstart:ingest] failed to store trace: #{e.message}"
+              log.warn "[coldstart:ingest] failed to store trace: #{e.message}"
             end
 
             # Flush the cache-backed store if it supports it
             store = runner.send(:default_store)
             store.flush if store.respond_to?(:flush)
 
-            Legion::Logging.info "[coldstart:ingest] stored #{stored.size} traces (imprint_active=#{imprint})"
+            log.info "[coldstart:ingest] stored #{stored.size} traces (imprint_active=#{imprint})"
 
             # Co-activate traces from the same section to form Hebbian links
             coactivate_section_traces(stored, candidates, runner)
@@ -163,9 +163,9 @@ module Legion
               end
             end
 
-            Legion::Logging.debug "[coldstart:ingest] co-activated #{coactivations} trace pairs across #{groups.size} sections"
+            log.debug "[coldstart:ingest] co-activated #{coactivations} trace pairs across #{groups.size} sections"
           rescue StandardError => e
-            Legion::Logging.warn "[coldstart:ingest] co-activation failed: #{e.message}"
+            log.warn "[coldstart:ingest] co-activation failed: #{e.message}"
           end
         end
       end
