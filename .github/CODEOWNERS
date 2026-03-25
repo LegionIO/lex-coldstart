@@ -1,0 +1,7 @@
+# Auto-generated from team-config.yml
+# Team: extensions
+#
+# To apply: scripts/apply-codeowners.sh lex-coldstart
+
+* @LegionIO/maintainers
+* @LegionIO/extensions
