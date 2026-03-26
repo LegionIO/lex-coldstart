@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.2] - 2026-03-26
+
+### Changed
+- Migrate from lex-memory to lex-agentic-memory for trace storage
+- `memory_available?` and `memory_runner` now reference `Legion::Extensions::Agentic::Memory::Trace::Runners::Traces`
 
 ## [0.1.1] - 2026-03-22
 

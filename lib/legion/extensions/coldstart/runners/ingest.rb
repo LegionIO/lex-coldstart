@@ -8,11 +8,11 @@ module Legion
           include Legion::Extensions::Helpers::Lex if Legion::Extensions.const_defined?(:Helpers) &&
                                                       Legion::Extensions::Helpers.const_defined?(:Lex)
 
-          # Ingest a single Claude memory or CLAUDE.md file into lex-memory traces.
-          # If lex-memory is not loaded, returns the parsed traces without storing.
+          # Ingest a single Claude memory or CLAUDE.md file into agentic memory traces.
+          # If lex-agentic-memory is not loaded, returns the parsed traces without storing.
           #
           # @param file_path [String] absolute path to the markdown file
-          # @param store_traces [Boolean] whether to store into lex-memory (default: true)
+          # @param store_traces [Boolean] whether to store into agentic memory (default: true)
           # @return [Hash] { file:, file_type:, traces_parsed:, traces_stored:, traces: }
           def ingest_file(file_path:, store_traces: true, **)
             unless File.exist?(file_path)
@@ -39,7 +39,7 @@ module Legion
           #
           # @param dir_path [String] absolute path to the directory
           # @param pattern [String] glob pattern (default: '**/{CLAUDE,MEMORY}.md')
-          # @param store_traces [Boolean] whether to store into lex-memory (default: true)
+          # @param store_traces [Boolean] whether to store into agentic memory (default: true)
           # @return [Hash] { directory:, files_found:, total_parsed:, total_stored:, files: }
           def ingest_directory(dir_path:, pattern: '**/{CLAUDE,MEMORY}.md', store_traces: true, **)
             unless Dir.exist?(dir_path)
@@ -117,13 +117,15 @@ module Legion
           end
 
           def memory_available?
-            Legion::Extensions.const_defined?(:Memory) &&
-              Legion::Extensions::Memory.const_defined?(:Runners) &&
-              Legion::Extensions::Memory::Runners.const_defined?(:Traces)
+            Legion::Extensions.const_defined?(:Agentic) &&
+              Legion::Extensions::Agentic.const_defined?(:Memory) &&
+              Legion::Extensions::Agentic::Memory.const_defined?(:Trace) &&
+              Legion::Extensions::Agentic::Memory::Trace.const_defined?(:Runners) &&
+              Legion::Extensions::Agentic::Memory::Trace::Runners.const_defined?(:Traces)
           end
 
           def memory_runner
-            @memory_runner ||= Object.new.extend(Legion::Extensions::Memory::Runners::Traces)
+            @memory_runner ||= Object.new.extend(Legion::Extensions::Agentic::Memory::Trace::Runners::Traces)
           end
 
           def imprint_active_now?
