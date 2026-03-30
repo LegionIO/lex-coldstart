@@ -5,8 +5,8 @@ module Legion
     module Coldstart
       module Runners
         module Ingest
-          include Legion::Extensions::Helpers::Lex if Legion::Extensions.const_defined?(:Helpers) &&
-                                                      Legion::Extensions::Helpers.const_defined?(:Lex)
+          include Legion::Extensions::Helpers::Lex if Legion::Extensions.const_defined?(:Helpers, false) &&
+                                                      Legion::Extensions::Helpers.const_defined?(:Lex, false)
 
           # Ingest a single Claude memory or CLAUDE.md file into agentic memory traces.
           # If lex-agentic-memory is not loaded, returns the parsed traces without storing.
@@ -117,11 +117,11 @@ module Legion
           end
 
           def memory_available?
-            Legion::Extensions.const_defined?(:Agentic) &&
-              Legion::Extensions::Agentic.const_defined?(:Memory) &&
-              Legion::Extensions::Agentic::Memory.const_defined?(:Trace) &&
-              Legion::Extensions::Agentic::Memory::Trace.const_defined?(:Runners) &&
-              Legion::Extensions::Agentic::Memory::Trace::Runners.const_defined?(:Traces)
+            Legion::Extensions.const_defined?(:Agentic, false) &&
+              Legion::Extensions::Agentic.const_defined?(:Memory, false) &&
+              Legion::Extensions::Agentic::Memory.const_defined?(:Trace, false) &&
+              Legion::Extensions::Agentic::Memory::Trace.const_defined?(:Runners, false) &&
+              Legion::Extensions::Agentic::Memory::Trace::Runners.const_defined?(:Traces, false)
           end
 
           def memory_runner
@@ -130,7 +130,7 @@ module Legion
 
           def imprint_active_now?
             bootstrap.imprint_active?
-          rescue StandardError
+          rescue StandardError => _e
             false
           end
 

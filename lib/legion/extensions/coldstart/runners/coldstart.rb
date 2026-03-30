@@ -5,8 +5,8 @@ module Legion
     module Coldstart
       module Runners
         module Coldstart
-          include Legion::Extensions::Helpers::Lex if Legion::Extensions.const_defined?(:Helpers) &&
-                                                      Legion::Extensions::Helpers.const_defined?(:Lex)
+          include Legion::Extensions::Helpers::Lex if Legion::Extensions.const_defined?(:Helpers, false) &&
+                                                      Legion::Extensions::Helpers.const_defined?(:Lex, false)
 
           def begin_imprint(**)
             bootstrap.load_firmware
@@ -40,7 +40,7 @@ module Legion
             progress
           end
 
-          def imprint_active?(**) # rubocop:disable Naming/PredicateMethod
+          def imprint_active?(**)
             active = bootstrap.imprint_active?
             log.debug "[coldstart] imprint_active?=#{active}"
             { active: active }
