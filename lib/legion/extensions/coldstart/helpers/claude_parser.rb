@@ -108,7 +108,7 @@ module Legion
           # Returns Array<Hash{ heading:, heading_slug:, body: }>
           def split_sections(content)
             sections = []
-            current = { heading: 'preamble', heading_slug: 'preamble', body: String.new }
+            current = { heading: 'preamble', heading_slug: 'preamble', body: +'' }
 
             content.each_line do |line|
               if line.match?(/\A##\s+/)
@@ -117,7 +117,7 @@ module Legion
                 current = {
                   heading:      heading,
                   heading_slug: slugify(heading),
-                  body:         String.new
+                  body:         +''
                 }
               else
                 current[:body] << line
@@ -136,7 +136,7 @@ module Legion
             in_code_block = false
 
             body.each_line do |line|
-              if line.match?(/\A```/)
+              if line.start_with?('```')
                 if in_code_block
                   current_item << line
                   items << current_item
