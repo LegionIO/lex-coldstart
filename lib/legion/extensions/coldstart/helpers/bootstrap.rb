@@ -15,7 +15,9 @@ module Legion
             load_from_local
           end
 
-          def begin_imprint
+          def begin_imprint(force: false)
+            return if @started_at && !force
+
             @started_at = Time.now.utc
             @calibration_state = :imprinting
             save_to_local

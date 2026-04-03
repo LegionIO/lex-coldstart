@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.4] - 2026-04-03
+
+### Changed
+- add idempotency guard to `begin_imprint` (no-op if already started, unless `force: true`)
+- add specs for `begin_imprint` idempotency and force-reset behavior
+
 ## [0.1.3] - 2026-03-30
 
 ### Changed

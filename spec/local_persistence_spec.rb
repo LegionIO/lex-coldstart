@@ -75,6 +75,34 @@ RSpec.describe 'lex-coldstart local persistence' do
       b2 = fresh_bootstrap
       expect(b2.started_at).not_to be_nil
     end
+
+    it 'does not reset started_at when begin_imprint is called again without force' do
+      first_time = Time.utc(2026, 4, 2, 12, 0, 0)
+      second_time = first_time + 60
+      allow(Time).to receive(:now).and_return(first_time, second_time)
+
+      b = fresh_bootstrap
+      b.begin_imprint
+      original_started_at = b.started_at
+
+      b.begin_imprint
+
+      expect(b.started_at.to_i).to eq(original_started_at.to_i)
+    end
+
+    it 'resets started_at when begin_imprint is called with force: true' do
+      first_time = Time.utc(2026, 4, 2, 12, 0, 0)
+      second_time = first_time + 60
+      allow(Time).to receive(:now).and_return(first_time, second_time)
+
+      b = fresh_bootstrap
+      b.begin_imprint
+      original_started_at = b.started_at
+
+      b.begin_imprint(force: true)
+
+      expect(b.started_at.to_i).to be > original_started_at.to_i
+    end
   end
 
   describe 'calibration_state symbol round-trip' do
